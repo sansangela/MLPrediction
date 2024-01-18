@@ -47,6 +47,8 @@ class DataLoader:
 
         self.preprocess_data(force_process_data_flag)
 
+        # TODO: validation data
+
     def generate_batches(self):
         """
         Generator function to yield data batches.
@@ -56,15 +58,21 @@ class DataLoader:
                 The shape of both input and target data is (batch_size, seq_length, np.array(num_peds_per_frame, feature_dim=3)).
         """
         # TODO: aggregate dataset
+
         num_seq = len(self.data) // self.seq_length
         num_batches = num_seq // self.batch_size
 
+        # Iterate through the batches
         for _ in range(num_batches):
             batch_idx = 0
             data_x = []
             data_y = []
+
+            # Generate data for each batch
             while batch_idx < self.batch_size:
                 frame_start = self.frame_list[self.frame_ptr]
+
+                # Check if there are enough frames for the sequence
                 if frame_start + self.seq_length < len(self.frame_list):
                     batch_data_x = self.data[
                         frame_start : frame_start + self.seq_length
@@ -116,6 +124,7 @@ class DataLoader:
         Args:
             force_process_data_flag (bool, optional): Flag to force data preprocessing from raw.
         """
+        # Read the raw data from the specified file
         orig_df = pd.read_csv(self.file_path, header=None)
         frame_numbers = orig_df.iloc[0].astype(int)
         pedestrian_ids = orig_df.iloc[1].astype(int)
@@ -137,17 +146,52 @@ class DataLoader:
         self.frame_list = []
         self.data = []
 
+        # Process each frame's data
         for frame_id, group in grouped:
             ped_list = group["pedestrian_id"].tolist()
             self.frame_list.append(frame_id)
             self.ped_indices.append(ped_list)
             self.data.append(np.array(group[["pedestrian_id", "y", "x"]]))
 
-        ## TODO: store
+        # Store the processed data if it doesn't exist or if forced
         if not os.path.exists(self.data_preprocessed_file) or force_process_data_flag:
             with open(self.data_preprocessed_file, "wb") as file:
                 pickle.dump((self.data, self.ped_indices, self.frame_list), file)
             print(f"Write preprocessed data to {self.data_preprocessed_file}")
+
+    def convert_to_dense_representation(self, data):
+        """
+        Convert sparse pedestrian data to a dense representation.
+
+        Args:
+            data (list): A 3D NumPy array containing pedestrian data.
+                Shape: (seq_length, np.array(num_peds_per_frame, feature_dim=3)
+
+        Returns:
+            numpy.ndarray: A dense representation of pedestrian data in a NumPy array.
+                The shape of the dense representation is (num_seq, num_ped, 2).
+
+            dict: A dictionary mapping pedestrian IDs to their corresponding indices
+                in the dense representation.
+        """
+
+        # Identify unique pedestrian IDs
+        unique_ped_ids = np.unique(np.concatenate(data)[:, 0]).astype(int)
+
+        # Create a mapping from pedestrian IDs to indices
+        ped_id_to_index_map = {ped_id: i for i, ped_id in enumerate(unique_ped_ids)}
+        num_ped = len(unique_ped_ids)
+
+        # Initialize a zero array
+        num_seq = len(data)
+        dense_representation = np.zeros((num_seq, num_ped, 2))
+
+        # Populate the array
+        for sequence_idx in range(len(data)):
+            indices = [ped_id_to_index_map[x] for x in data[sequence_idx][:, 0]]
+            dense_representation[sequence_idx, indices, :] = data[sequence_idx][:, 1:3]
+
+        return dense_representation, ped_id_to_index_map
 
     def reset_frame_ptr(self, frame_ptr=0):
         """Resets the frame pointer.

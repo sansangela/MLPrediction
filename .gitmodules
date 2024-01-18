@@ -1,3 +1,0 @@
-[submodule "bazel_tutorial"]
-	path = bazel_tutorial
-	url = https://github.com/ourarash/bazel_tutorial

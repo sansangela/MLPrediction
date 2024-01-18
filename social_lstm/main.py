@@ -66,7 +66,7 @@ def main():
         "--learning_rate", type=float, default=0.003, help="Learning rate"
     )
     parser.add_argument(
-        "--num_epochs", type=int, default=100, help="Number of training epochs"
+        "--num_epochs", type=int, default=1, help="Number of training epochs"
     )  # TODO: change later
     parser.add_argument("--batch_size", type=int, default=5, help="Batch size")
 

@@ -19,7 +19,7 @@ def main():
     parser.add_argument(
         "--file_path",
         type=str,
-        default="/root/Projects/MLPrediction/data/eth/hotel/pixel_pos_interpolate.csv",
+        default="./data/eth/hotel/pixel_pos_interpolate.csv",
         help="File path for the dataset",
     )
     parser.add_argument(
@@ -28,7 +28,7 @@ def main():
     parser.add_argument(
         "--file_path_processed",
         type=str,
-        default="/root/Projects/MLPrediction/data/preprocessed/",
+        default="./data/preprocessed/",
         help="File path for processed data",
     )
     parser.add_argument(

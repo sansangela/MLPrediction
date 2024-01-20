@@ -1,0 +1,6 @@
+[submodule "third_party/third_party/social-lstm"]
+	path = third_party/third_party/social-lstm
+	url = https://github.com/sansangela/social-lstm.git
+[submodule "third_party/social-lstm"]
+	path = third_party/social-lstm
+	url = https://github.com/sansangela/social-lstm.git

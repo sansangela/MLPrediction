@@ -96,8 +96,8 @@ def train(args):
         optimizer = RMSprop(args.learning_rate)
 
         for epoch in range(args.num_epochs):
-            # For each batch
             epoch_loss = 0.0
+            # For each batch
             for batch in dataloader.generate_batches():
                 inputs, targets = batch
                 if not inputs or not targets:
@@ -111,7 +111,7 @@ def train(args):
                     input, target = inputs[sequence_idx], targets[sequence_idx]
                     (
                         dense_representation,
-                        ped_id_to_index_map,
+                        ped_id_to_index_map
                     ) = dataloader.convert_to_dense_representation(input)
                     dense_representation_tf = tf.Variable(
                         tf.convert_to_tensor(dense_representation)

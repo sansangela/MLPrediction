@@ -109,14 +109,12 @@ class DataLoader:
         if os.path.exists(self.data_preprocessed_file) and not force_process_data_flag:
             print("Load preprocessed data")
             with open(self.data_preprocessed_file, "rb") as file:
-                self.data, self.ped_indices, self.frame_list = pickle.load(file)
+                self.data, self.ped_indices, self.frame_list, self.ranges = pickle.load(file)
         else:
             print("Preprocess data")
             self.preprocess_data_from_raw(force_process_data_flag)
-
-        print("Preprocess data")
-        self.preprocess_data_from_raw(force_process_data_flag)
-        print("Done preprocessing")
+            print("Done preprocessing")
+        
 
     def preprocess_data_from_raw(self, force_process_data_flag=False):
         """Preprocesses raw data and stores it.
@@ -139,6 +137,7 @@ class DataLoader:
             }
         )
         df = df.drop_duplicates(subset=["frame_id", "pedestrian_id"])
+        self.ranges = df["y"].max()-df["y"].min(), df["x"].max()-df["x"].min()
 
         grouped = df.groupby("frame_id")
         ## TODO: process all datasets
@@ -156,7 +155,7 @@ class DataLoader:
         # Store the processed data if it doesn't exist or if forced
         if not os.path.exists(self.data_preprocessed_file) or force_process_data_flag:
             with open(self.data_preprocessed_file, "wb") as file:
-                pickle.dump((self.data, self.ped_indices, self.frame_list), file)
+                pickle.dump((self.data, self.ped_indices, self.frame_list, self.ranges), file)
             print(f"Write preprocessed data to {self.data_preprocessed_file}")
 
     def convert_to_dense_representation(self, data):

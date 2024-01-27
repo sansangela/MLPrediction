@@ -50,6 +50,7 @@ class DataLoader:
         # TODO: validation data
 
     def generate_batches(self):
+        # TODO: update docstring
         """
         Generator function to yield data batches.
 
@@ -67,6 +68,7 @@ class DataLoader:
             batch_idx = 0
             data_x = []
             data_y = []
+            data_x_ped_indices = []
 
             # Generate data for each batch
             while batch_idx < self.batch_size:
@@ -86,6 +88,7 @@ class DataLoader:
 
                     data_x.append(batch_data_x)
                     data_y.append(batch_data_y)
+                    data_x_ped_indices.append(batch_ped_indices)
 
                     self.frame_ptr += self.seq_length
                     batch_idx += 1
@@ -93,7 +96,7 @@ class DataLoader:
                     break
 
             # data: (batch_size, seq_length, np.array(num_peds_per_frame,feature_dim=3))
-            yield (data_x, data_y)
+            yield (data_x, data_y, data_x_ped_indices)
 
     def preprocess_data(self, force_process_data_flag=False):
         """Preprocesses the data by loading or generating it.
